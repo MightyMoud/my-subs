@@ -1,5 +1,5 @@
-import { middleware } from '#start/kernel'
 import router from '@adonisjs/core/services/router'
+import { middleware } from '#start/kernel'
 
 router
   .group(() => {
@@ -11,6 +11,10 @@ router
     router
       .get('/google/callback', '#controllers/auth_controller.googleCallback')
       .as('googleCallback')
+    router.get('/github', '#controllers/auth_controller.github').as('github')
+    router
+      .get('/github/callback', '#controllers/auth_controller.githubCallback')
+      .as('githubCallback')
     router
       .get('/logout', '#controllers/auth_controller.logout')
       .as('logout')

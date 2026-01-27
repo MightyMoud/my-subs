@@ -33,24 +33,9 @@ export default await Env.create(new URL('../', import.meta.url), {
   GOOGLE_CLIENT_ID: Env.schema.string(),
   GOOGLE_CLIENT_SECRET: Env.schema.string(),
   GOOGLE_CALLBACK_URL: Env.schema.string(),
+  GITHUB_CLIENT_ID: Env.schema.string(),
+  GITHUB_CLIENT_SECRET: Env.schema.string(),
+  GITHUB_CALLBACK_URL: Env.schema.string(),
 
   DATABASE_URL: Env.schema.string(),
-
-  BREVO_API_KEY: Env.schema.string(),
-
-  STRIPE_SECRET_KEY: Env.schema.string(),
-  STRIPE_ENDPOINT_SECRET: Env.schema.string(),
-  VITE_STRIPE_PUBLISHABLE_KEY: Env.schema.string(),
-  VITE_ASSETS_URL: Env.schema.string(),
-
-  /*
-  |----------------------------------------------------------
-  | Variables for configuring the drive package
-  |----------------------------------------------------------
-  */
-  DRIVE_DISK: Env.schema.enum(['r2'] as const),
-  R2_KEY: Env.schema.string(),
-  R2_SECRET: Env.schema.string(),
-  R2_BUCKET: Env.schema.string(),
-  R2_ENDPOINT: Env.schema.string(),
 })

@@ -16,8 +16,6 @@ export default class extends BaseSchema {
       table.string('oauth_token')
       table.string('password')
 
-      table.string('stripe_customer_id').nullable()
-
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
     })

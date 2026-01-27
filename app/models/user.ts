@@ -1,9 +1,8 @@
-import { DateTime } from 'luxon'
-import hash from '@adonisjs/core/services/hash'
-import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
-// import type { HasMany } from '@adonisjs/lucid/types/relations'
+import { compose } from '@adonisjs/core/helpers'
+import hash from '@adonisjs/core/services/hash'
+import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
+import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
@@ -43,12 +42,6 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @column()
   declare emailVerified: boolean
-
-  @column()
-  declare stripeCustomerId: string | null
-
-  // @hasMany(() => Order)
-  // declare orders: HasMany<typeof Order>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

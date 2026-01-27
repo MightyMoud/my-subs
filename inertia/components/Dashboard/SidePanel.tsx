@@ -1,18 +1,24 @@
 import { Icon } from '@iconify/react'
+import { Link, usePage } from '@inertiajs/react'
 
 export const SidePanel = () => {
+  const { user } = usePage<{ user: any }>().props
+
   return (
     <aside className="w-64 bg-[#FFFFFF] border-r border-[#E5E5E5] flex flex-col justify-between z-20 hidden md:flex">
       <div>
         <div className="h-16 flex items-center px-6 border-b border-[#E5E5E5]/50">
-          <div className="flex items-center gap-2">
+          <Link
+            href="/"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
             <div className="w-6 h-6 bg-[#0A0A0A] text-white flex items-center justify-center rounded-md shadow-sm">
               <Icon icon="solar:graph-new-up-linear" width="14" height="14" />
             </div>
             <span className="font-display font-bold text-[#0A0A0A] tracking-tight">
               MySubscriptions
             </span>
-          </div>
+          </Link>
         </div>
 
         <nav className="p-4 space-y-1">
@@ -83,15 +89,37 @@ export const SidePanel = () => {
         </div>
       </div>
 
-      <div className="p-4 border-t border-[#E5E5E5]/50">
-        <button className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-[#737373] hover:text-[#0A0A0A] hover:bg-[#FAFAFA] transition-colors">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-gray-200 to-gray-400"></div>
-          <div className="flex flex-col items-start">
-            <span className="text-xs font-medium">Alex Developer</span>
-            <span className="text-[10px] text-[#737373]">Free Plan</span>
+      <div className="p-4 border-t border-[#E5E5E5]/50 flex flex-col gap-2">
+        <div className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-[#737373]">
+          {user?.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt={`${user.firstName} ${user.lastName}`}
+              className="w-8 h-8 rounded-full border border-[#E5E5E5] object-cover"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-[#0A0A0A] text-white flex items-center justify-center text-[10px] font-bold border border-[#E5E5E5]">
+              {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase()}
+              {user?.lastName?.[0] || ''}
+            </div>
+          )}
+          <div className="flex flex-col items-start overflow-hidden">
+            <span className="text-xs font-medium text-[#0A0A0A] truncate w-full">
+              {user?.firstName} {user?.lastName}
+            </span>
+            <span className="text-[10px] text-[#737373] truncate w-full">
+              {user?.email}
+            </span>
           </div>
-          <Icon icon="solar:alt-arrow-right-linear" className="ml-auto" />
-        </button>
+        </div>
+
+        <Link
+          href="/api/auth/logout"
+          className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+        >
+          <Icon icon="solar:logout-linear" width="16" />
+          Log out
+        </Link>
       </div>
     </aside>
   )

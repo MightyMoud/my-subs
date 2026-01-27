@@ -17,18 +17,21 @@ router.group(() => {
   router
     .group(() => {
       router.get('/', '#controllers/views_controller.renderHomePage')
+      router.on('/terms-conditions').renderInertia('terms')
+      router.on('/privacy-policy').renderInertia('privacy')
     })
     .use(middleware.silentAuth())
 
   // private pages only
-  router.group(() => {
-    router.get(
-      '/dashboard',
-      '#controllers/views_controller.renderDashboardPage',
-    )
-  })
-  // should use private auth
-  // .use(middleware.auth())
+  router
+    .group(() => {
+      router.get(
+        '/dashboard',
+        '#controllers/views_controller.renderDashboardPage',
+      )
+    })
+    // should use private auth
+    .use(middleware.auth())
 
   // public views
   router.group(() => {
@@ -38,7 +41,5 @@ router.group(() => {
         router.get('test', '#controllers/views_controller.test')
       })
       .middleware(middleware.guest())
-    router.on('/terms-conditions').renderInertia('terms')
-    router.on('/privacy-policy').renderInertia('privacy')
   })
 })

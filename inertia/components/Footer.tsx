@@ -16,8 +16,20 @@ export const HomeFooter = () => {
             MySubscriptions
           </span>
         </Link>
-        <div className="text-xs text-[#737373]">
-          © 2024 MySubscriptions Inc. All rights reserved.
+        <div className="text-xs text-[#737373] flex gap-4">
+          <span>© 2024 MySubscriptions Inc. All rights reserved.</span>
+          <Link
+            href="/privacy-policy"
+            className="hover:text-[#0A0A0A] transition-colors"
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            href="/terms-conditions"
+            className="hover:text-[#0A0A0A] transition-colors"
+          >
+            Terms of Service
+          </Link>
         </div>
         <div className="flex gap-6">
           <a

@@ -96,6 +96,57 @@ export default class AuthController {
       return response.redirect().toPath(session.get('next') as string)
     }
 
-    return response.redirect().toPath('/')
+    return response.redirect().toPath('/dashboard')
+  }
+
+  public async github({ ally, request, session }: HttpContext) {
+    const next = request.qs().next
+    if (next) {
+      session.put('next', next)
+    } else {
+      session.forget('next')
+    }
+
+    return ally.use('github').redirect()
+  }
+
+  public async githubCallback({ ally, auth, session, response }: HttpContext) {
+    const github = ally.use('github')
+
+    if (github.accessDenied()) {
+      return 'Access was denied'
+    }
+
+    if (github.stateMisMatch()) {
+      return 'Request expired. Retry again'
+    }
+
+    if (github.hasError()) {
+      return github.getError()
+    }
+
+    const githubUser = await github.user()
+    const user = await User.firstOrCreate(
+      {
+        email: githubUser.email ?? '',
+      },
+      {
+        email: githubUser.email ?? '',
+        userName: githubUser.original?.login,
+        firstName: githubUser.original.name.split(' ')[0] || '',
+        lastName: githubUser.original.name.split(' ')[1] || '',
+        emailVerified: githubUser.emailVerificationState === 'verified',
+        oauthToken: githubUser.token.token,
+        avatarUrl: githubUser.avatarUrl ?? '',
+      },
+    )
+
+    await auth.use('web').login(user)
+
+    if (session.get('next')) {
+      return response.redirect().toPath(session.get('next') as string)
+    }
+
+    return response.redirect().toPath('/dashboard')
   }
 }
