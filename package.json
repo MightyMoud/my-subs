@@ -64,6 +64,7 @@
     "@adonisjs/shield": "^8.1.2",
     "@adonisjs/static": "^1.1.1",
     "@adonisjs/vite": "^4.0.0",
+    "@google/genai": "^1.38.0",
     "@iconify/react": "^6.0.2",
     "@inertiajs/react": "^2.0.6",
     "@tabler/icons-react": "^3.31.0",

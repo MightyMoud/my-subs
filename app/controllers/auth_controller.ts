@@ -107,6 +107,7 @@ export default class AuthController {
         },
       )
 
+      session.put('sessionData', { justConnected: 'google' })
       return response.redirect().toPath(session.get('next') || '/dashboard')
     }
 
@@ -177,6 +178,7 @@ export default class AuthController {
             : null,
         },
       )
+      session.put('sessionData', { justConnected: 'github' })
       return response.redirect().toPath(session.get('next') || '/dashboard')
     }
 

@@ -12,6 +12,7 @@ import { middleware } from './kernel.js'
 
 import './routes/auth.js'
 import './routes/connections.js'
+import './routes/github.js'
 
 router.group(() => {
   // public with logged in state
