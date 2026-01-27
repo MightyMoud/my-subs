@@ -11,6 +11,7 @@ import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 
 import './routes/auth.js'
+import './routes/connections.js'
 
 router.group(() => {
   // public with logged in state

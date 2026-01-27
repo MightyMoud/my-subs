@@ -1,5 +1,7 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
+import { DateTime } from 'luxon'
+import DataConnection from '#models/data_connection'
 import User from '#models/user'
 
 @inject()
@@ -74,7 +76,6 @@ export default class AuthController {
     }
 
     const googleUser = await google.user()
-
     const user = await User.firstOrCreate(
       {
         email: googleUser.email ?? '',
@@ -91,6 +92,23 @@ export default class AuthController {
     )
 
     await auth.use('web').login(user)
+
+    // Handle Connection Flow
+    if (session.get('is_connecting') === 'google') {
+      session.forget('is_connecting')
+      await DataConnection.updateOrCreate(
+        { userId: user.id, provider: 'google' },
+        {
+          accessToken: googleUser.token.token,
+          refreshToken: googleUser.token.refreshToken,
+          tokenExpiresAt: googleUser.token.expiresAt
+            ? DateTime.fromJSDate(googleUser.token.expiresAt)
+            : null,
+        },
+      )
+
+      return response.redirect().toPath(session.get('next') || '/dashboard')
+    }
 
     if (session.get('next')) {
       return response.redirect().toPath(session.get('next') as string)
@@ -142,6 +160,25 @@ export default class AuthController {
     )
 
     await auth.use('web').login(user)
+
+    // Handle Connection Flow
+    if (session.get('is_connecting') === 'github') {
+      session.forget('is_connecting')
+      await DataConnection.updateOrCreate(
+        { userId: user.id, provider: 'github' },
+        {
+          accessToken: githubUser.token.token,
+          // @ts-ignore
+          refreshToken: githubUser.token.refreshToken,
+          // @ts-ignore
+          tokenExpiresAt: githubUser.token.expiresAt
+            ? // @ts-ignore
+              DateTime.fromJSDate(githubUser.token.expiresAt)
+            : null,
+        },
+      )
+      return response.redirect().toPath(session.get('next') || '/dashboard')
+    }
 
     if (session.get('next')) {
       return response.redirect().toPath(session.get('next') as string)

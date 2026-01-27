@@ -35,7 +35,7 @@ export default class DataConnection extends BaseModel {
   declare user: BelongsTo<typeof User>
 
   @beforeCreate()
-  public static assignUuid(user: User) {
-    user.id = uuidv4()
+  public static assignUuid(dataConnection: DataConnection) {
+    dataConnection.id = uuidv4()
   }
 }
