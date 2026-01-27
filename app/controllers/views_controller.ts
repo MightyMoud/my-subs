@@ -4,4 +4,8 @@ export default class ViewsController {
   async renderHomePage({ inertia }: HttpContext) {
     return inertia.render('home', {})
   }
+
+  async renderDashboardPage({ inertia }: HttpContext) {
+    return inertia.render('dashboard', {})
+  }
 }

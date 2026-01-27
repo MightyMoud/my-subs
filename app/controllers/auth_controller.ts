@@ -1,11 +1,10 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
-import EmailService from '#services/email_service'
 
 @inject()
 export default class AuthController {
-  constructor(protected emailService: EmailService) { }
+  constructor() {}
 
   async login({ auth, response, request }: HttpContext) {
     const { email, password } = request.body()
@@ -90,25 +89,9 @@ export default class AuthController {
         avatarUrl: googleUser.avatarUrl ?? '',
       },
     )
-    const contactExists = await this.emailService.checkContactExists(
-      googleUser.email,
-    )
-    if (!contactExists) {
-      await this.emailService.createContact({
-        email: googleUser.email,
-        firstName: googleUser.original.given_name,
-        customerId: user.id,
-      })
-    }
 
     await auth.use('web').login(user)
 
-    if (session.get('pendingTransaction')) {
-      // const transactionId = session.get('pendingTransaction')
-      // const transaction = await Transaction.find(transactionId)
-      // transaction!.userId = user.id
-      // await transaction?.save()
-    }
     if (session.get('next')) {
       return response.redirect().toPath(session.get('next') as string)
     }
