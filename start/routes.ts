@@ -21,15 +21,14 @@ router.group(() => {
     .use(middleware.silentAuth())
 
   // private pages only
-  router
-    .group(() => {
-      router.get(
-        '/dashboard',
-        '#controllers/views_controller.renderDashboardPage',
-      )
-    })
-    // should use private auth
-    .use(middleware.auth())
+  router.group(() => {
+    router.get(
+      '/dashboard',
+      '#controllers/views_controller.renderDashboardPage',
+    )
+  })
+  // should use private auth
+  // .use(middleware.auth())
 
   // public views
   router.group(() => {
