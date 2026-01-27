@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap');
+@import "tailwindcss";
+
+:root {
+	--color-canvas: #FAFAFA;
+	--color-obsidian: #0A0A0A;
+	--color-subtle: #737373;
+	--color-border: #E5E5E5;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+.font-sans {
+	font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+}
+
+.font-mono {
+	font-family: "JetBrains Mono", monospace;
+}
+
+.glass-panel {
+	background: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid rgba(229, 229, 229, 0.6);
+}
+
+@keyframes fadeInUp {
+	0% {
+		opacity: 0;
+		transform: translateY(24px) scale(0.98);
+		filter: blur(4px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+		filter: blur(0);
+	}
+}
+
+.animate-reveal {
+	animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes flow {
+	to {
+		stroke-dashoffset: -200;
+	}
+}
+
+.path-flow {
+	stroke-dasharray: 10;
+	animation: flow 20s linear infinite;
+}
+
+.tech-grid-bg {
+	background-size: 50px 50px;
+	background-image: linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+		linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+	mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+	-webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+}

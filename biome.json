@@ -1,0 +1,75 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
+  "files": { "ignoreUnknown": false, "ignore": ["./.vscode/*"] },
+  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2 },
+  "organizeImports": { "enabled": true },
+  "linter": {
+    "enabled": true,
+    "rules": { "recommended": false },
+    "ignore": [
+      "eslint.config.js",
+      "eslint.config.ts",
+      "*.min.*",
+      "*.d.ts",
+      "CHANGELOG.md",
+      "dist/**",
+      "LICENSE*",
+      "output/**",
+      "coverage/**",
+      "temp/**",
+      "build/**",
+      "pnpm-lock.yaml",
+      "yarn.lock",
+      "package-lock.json"
+    ]
+  },
+  "javascript": {
+    "formatter": { "quoteStyle": "single", "semicolons": "asNeeded" },
+    "globals": []
+  },
+  "overrides": [
+    {
+      "ignore": ["public/assets/**", "__snapshots__/**", "resources/**"],
+      "include": ["**/*.ts"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExtraBooleanCast": "error",
+            "noMultipleSpacesInRegularExpressionLiterals": "error",
+            "noUselessUndefinedInitialization": "error",
+            "noWith": "error"
+          },
+          "correctness": {
+            "noConstantCondition": "error",
+            "noInnerDeclarations": "error",
+            "noSelfAssign": "error",
+            "noUnreachable": "error",
+            "noUnreachableSuper": "error",
+            "noUnsafeFinally": "error",
+            "useArrayLiterals": "error",
+            "useIsNan": "error"
+          },
+          "security": { "noGlobalEval": "error" },
+          "style": {
+            "useBlockStatements": "off",
+            "useConsistentBuiltinInstantiation": "error",
+            "useSingleVarDeclarator": "error"
+          },
+          "suspicious": {
+            "noCatchAssign": "error",
+            "noControlCharactersInRegex": "error",
+            "noDebugger": "error",
+            "noDoubleEquals": "error",
+            "noDuplicateCase": "error",
+            "noFallthroughSwitchClause": "error",
+            "noSelfCompare": "error",
+            "noSparseArray": "error",
+            "noUnsafeNegation": "error",
+            "useValidTypeof": "error"
+          }
+        }
+      }
+    }
+  ]
+}

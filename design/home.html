@@ -1,0 +1,776 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MySubscriptions | AI-Powered Developer Insights</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;family=Inter:wght@200;300;400;500;600&amp;family=JetBrains+Mono:wght@300;400;500&amp;display=swap" rel="stylesheet">
+
+<!-- Tailwind & External Libs -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+                    mono: ['"JetBrains Mono"', 'monospace'],
+                },
+                colors: {
+                    canvas: '#FAFAFA',
+                    surface: '#FFFFFF',
+                    obsidian: '#0A0A0A',
+                    charcoal: '#333333',
+                    subtle: '#737373',
+                    border: '#E5E5E5',
+                    primary: '#000000',
+                },
+                letterSpacing: {
+                    tight: '-0.02em',
+                    tighter: '-0.04em',
+                },
+                animation: {
+                    'spin-slow': 'spin 12s linear infinite',
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+    html {
+        scroll-behavior: smooth;
+    }
+    body {
+        margin: 0;
+        background-color: #FAFAFA;
+        color: #0A0A0A;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+    
+    /* Utility */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(229, 229, 229, 0.6);
+    }
+
+    /* Scroll Animations */
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(24px) scale(0.98);
+            filter: blur(4px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+    }
+
+    .reveal-on-scroll {
+        opacity: 0; /* Hidden initially, controlled by observer */
+        will-change: transform, opacity, filter;
+    }
+
+    .animate-reveal {
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .delay-100 { animation-delay: 100ms; }
+    .delay-200 { animation-delay: 200ms; }
+    .delay-300 { animation-delay: 300ms; }
+
+    /* Custom UI Elements */
+    .premium-card {
+        background: #FFFFFF;
+        border: 1px solid #EAEAEA;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02), 0 8px 16px -4px rgba(0,0,0,0.04);
+        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .premium-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px -6px rgba(0,0,0,0.08);
+        border-color: #D4D4D4;
+    }
+
+    .tech-grid-bg {
+        background-size: 50px 50px;
+        background-image: 
+            linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+        mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+    }
+
+    /* SVG Animations */
+    .path-flow {
+        stroke-dasharray: 10;
+        animation: flow 20s linear infinite;
+    }
+    @keyframes flow {
+        to { stroke-dashoffset: -200; }
+    }
+</style>
+</head>
+
+<body class="w-full relative bg-canvas selection:bg-obsidian selection:text-white">
+
+    <!-- Background Layers -->
+    <div class="fixed inset-0 z-0 tech-grid-bg pointer-events-none"></div>
+    <div id="canvas-container" class="fixed inset-0 z-0 opacity-60 pointer-events-none"></div>
+
+    <!-- Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50 w-full px-6 py-4 md:px-12 flex justify-between items-center glass-panel transition-all duration-300 reveal-on-scroll">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-obsidian text-white flex items-center justify-center rounded-lg shadow-lg shadow-obsidian/20">
+                <iconify-icon icon="solar:graph-new-up-linear" width="18" height="18"></iconify-icon>
+            </div>
+            <span class="font-sans text-sm font-bold tracking-tight text-obsidian">MySubscriptions</span>
+        </div>
+        
+        <nav class="hidden md:flex items-center gap-8">
+            <a href="#features" class="font-sans text-xs font-medium text-subtle hover:text-obsidian transition-colors">Integrations</a>
+            <a href="#how-it-works" class="font-sans text-xs font-medium text-subtle hover:text-obsidian transition-colors">How it Works</a>
+            <a href="#pricing" class="font-sans text-xs font-medium text-subtle hover:text-obsidian transition-colors">Pricing</a>
+        </nav>
+
+        <div class="flex items-center gap-4">
+            <a href="#" class="hidden md:block font-sans text-xs font-medium text-subtle hover:text-obsidian transition-colors">Log in</a>
+            <button class="group relative overflow-hidden bg-obsidian text-white text-xs font-semibold px-5 py-2.5 rounded-lg shadow-md transition-all hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]">
+                <span class="relative z-10 flex items-center gap-2">
+                    Connect Account
+                    <iconify-icon icon="solar:arrow-right-linear" width="14"></iconify-icon>
+                </span>
+                <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+            </button>
+        </div>
+    </header>
+
+    <div class="relative z-10 flex flex-col w-full">
+        
+        <!-- HERO SECTION -->
+        <section class="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-20 px-6 md:px-12 overflow-hidden">
+            <div class="max-w-4xl mx-auto text-center space-y-8 relative z-10">
+                
+                <div class="reveal-on-scroll">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-border shadow-sm mb-6 hover:border-obsidian/40 transition-colors cursor-default">
+                        <iconify-icon icon="solar:stars-minimalistic-linear" class="text-amber-500"></iconify-icon>
+                        <span class="font-sans text-[11px] font-medium text-subtle tracking-tight">AI-Powered Analytics 2.0 is live</span>
+                    </div>
+                </div>
+
+                <h1 class="font-sans text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tighter text-obsidian leading-[0.95] reveal-on-scroll delay-100">
+                    Your digital pulse, <br>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-br from-subtle to-obsidian pb-2">summarized.</span>
+                </h1>
+
+                <p class="max-w-xl mx-auto font-sans text-base md:text-lg text-subtle leading-relaxed reveal-on-scroll delay-200">
+                    Connect your GitHub and Google accounts. Let our neural engine analyze your commit history and calendar events to provide actionable productivity insights.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 reveal-on-scroll delay-300">
+                    <button class="w-full sm:w-auto px-8 py-3.5 bg-obsidian text-white rounded-lg text-sm font-medium shadow-lg shadow-obsidian/20 hover:bg-charcoal transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                        <iconify-icon icon="solar:github-circle-linear" width="18"></iconify-icon>
+                        Connect GitHub
+                    </button>
+                    <button class="w-full sm:w-auto px-8 py-3.5 bg-white text-obsidian border border-border rounded-lg text-sm font-medium shadow-sm hover:border-obsidian/30 hover:shadow-md transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                        <iconify-icon icon="solar:calendar-linear" width="18"></iconify-icon>
+                        Connect Calendar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Abstract Visual -->
+            <div class="mt-20 w-full max-w-5xl relative reveal-on-scroll delay-300">
+                <div class="absolute inset-0 bg-gradient-to-t from-canvas via-transparent to-transparent z-20 h-full w-full"></div>
+                <div class="premium-card rounded-xl p-2 md:p-4 bg-white/50 backdrop-blur-sm border-border">
+                    <div class="bg-canvas border border-border/50 rounded-lg p-6 md:p-10 relative overflow-hidden h-[300px] md:h-[400px] flex items-center justify-center">
+                        
+                        <!-- Connecting Lines Animation -->
+                        <svg class="absolute inset-0 w-full h-full opacity-30" preserveAspectRatio="none">
+                            <path d="M0,350 Q400,300 600,200 T1200,100" fill="none" stroke="#000" stroke-width="1" class="path-flow"></path>
+                            <path d="M0,50 Q300,150 600,200 T1200,300" fill="none" stroke="#000" stroke-width="1" class="path-flow" style="animation-delay: -5s"></path>
+                        </svg>
+
+                        <!-- Central Hub -->
+                        <div class="relative z-10 flex items-center gap-8 md:gap-16">
+                            <!-- Left: Inputs -->
+                            <div class="flex flex-col gap-6">
+                                <div class="w-14 h-14 bg-white border border-border rounded-xl shadow-sm flex items-center justify-center animate-bounce duration-[3000ms]">
+                                    <iconify-icon icon="solar:github-circle-bold" width="32" class="text-obsidian"></iconify-icon>
+                                </div>
+                                <div class="w-14 h-14 bg-white border border-border rounded-xl shadow-sm flex items-center justify-center animate-bounce duration-[3000ms] delay-700">
+                                    <iconify-icon icon="solar:calendar-bold" width="32" class="text-blue-600"></iconify-icon>
+                                </div>
+                            </div>
+
+                            <!-- Center: Processing -->
+                            <div class="relative">
+                                <div class="w-24 h-24 rounded-full border border-dashed border-obsidian/20 flex items-center justify-center animate-spin-slow"></div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="w-16 h-16 bg-obsidian text-white rounded-full flex items-center justify-center shadow-2xl shadow-obsidian/30">
+                                        <iconify-icon icon="solar:magic-stick-3-linear" width="28"></iconify-icon>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Output -->
+                            <div class="w-48 h-32 bg-white border border-border rounded-xl shadow-lg p-4 flex flex-col gap-3">
+                                <div class="flex gap-2 items-center">
+                                    <div class="w-8 h-8 rounded bg-green-50 text-green-600 flex items-center justify-center">
+                                        <iconify-icon icon="solar:chart-2-linear" width="16"></iconify-icon>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] font-bold text-obsidian uppercase">Productivity</span>
+                                        <span class="text-[10px] text-subtle">+24% vs last week</span>
+                                    </div>
+                                </div>
+                                <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-obsidian w-3/4 rounded-full"></div>
+                                </div>
+                                <div class="text-[9px] text-subtle leading-tight mt-1">
+                                    "High commit volume correlated with 4h deep work blocks."
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTEGRATIONS -->
+        <section class="py-10 border-y border-border/60 bg-white">
+            <div class="max-w-7xl mx-auto px-6 flex flex-wrap justify-center items-center gap-x-12 gap-y-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500 reveal-on-scroll">
+                <div class="flex items-center gap-2">
+                    <iconify-icon icon="mdi:github" width="24"></iconify-icon>
+                    <span class="font-sans font-semibold text-sm">GitHub</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <iconify-icon icon="mdi:google" width="24"></iconify-icon>
+                    <span class="font-sans font-semibold text-sm">Google Calendar</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <iconify-icon icon="mdi:gitlab" width="24"></iconify-icon>
+                    <span class="font-sans font-semibold text-sm">GitLab</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <iconify-icon icon="mdi:microsoft-outlook" width="24"></iconify-icon>
+                    <span class="font-sans font-semibold text-sm">Outlook</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <iconify-icon icon="simple-icons:notion" width="24"></iconify-icon>
+                    <span class="font-sans font-semibold text-sm">Notion</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCROLLYTELLING LIFECYCLE -->
+        <section id="how-it-works" class="relative w-full bg-canvas border-b border-border/60" style="height: 350vh;">
+            <div class="sticky top-0 left-0 w-full h-screen overflow-hidden flex flex-col items-center justify-center">
+                <div class="max-w-3xl w-full px-6 md:px-12 relative z-10 flex flex-col items-center h-full py-20">
+                    
+                    <div class="text-center mb-12 shrink-0 transition-opacity duration-700" id="lifecycle-header">
+                        <h2 class="font-sans text-3xl md:text-4xl font-semibold text-obsidian tracking-tight mb-3">
+                            From Data to Insight
+                        </h2>
+                        <p class="text-subtle text-sm md:text-base max-w-md mx-auto">
+                            MySubscriptions automates the analysis of your fragmented digital work life.
+                        </p>
+                    </div>
+
+                    <div class="relative w-full max-w-xl flex-1 flex flex-col justify-center my-auto">
+                        <!-- Vertical Line -->
+                        <div class="absolute left-8 md:left-1/2 top-4 bottom-4 w-px bg-border/60 md:-translate-x-1/2"></div>
+                        <div id="lifecycle-line" class="absolute left-8 md:left-1/2 top-4 w-px bg-obsidian md:-translate-x-1/2 transition-all duration-100 ease-linear h-0 max-h-[calc(100%-2rem)]"></div>
+
+                        <div class="space-y-24 py-8 relative pl-20 md:pl-0">
+                            
+                            <!-- Step 1 -->
+                            <div class="lifecycle-step group flex flex-col md:flex-row items-center justify-between w-full opacity-30 transition-all duration-500" data-threshold="0.1">
+                                <div class="md:w-[42%] md:text-right md:pr-12 text-left w-full mb-2 md:mb-0">
+                                    <span class="font-mono text-[10px] text-subtle uppercase tracking-wider block mb-1">01 Connect</span>
+                                    <h3 class="font-sans text-lg font-semibold text-obsidian">Link Accounts</h3>
+                                    <p class="text-xs text-subtle mt-1">OAuth securely into your tools.</p>
+                                </div>
+                                <div class="absolute left-8 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full border border-border bg-white flex items-center justify-center z-20 group-[.active]:border-obsidian group-[.active]:scale-110 transition-all shadow-sm">
+                                    <iconify-icon icon="solar:link-circle-linear" class="text-subtle group-[.active]:text-obsidian"></iconify-icon>
+                                </div>
+                                <div class="md:w-[42%] md:pl-12 w-full">
+                                    <div class="bg-white border border-border p-4 rounded-lg shadow-sm w-fit">
+                                        <div class="flex -space-x-2">
+                                            <div class="w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center"><iconify-icon icon="mdi:github" width="16"></iconify-icon></div>
+                                            <div class="w-8 h-8 rounded-full border-2 border-white bg-blue-50 flex items-center justify-center"><iconify-icon icon="mdi:google" width="16"></iconify-icon></div>
+                                            <div class="w-8 h-8 rounded-full border-2 border-white bg-green-50 flex items-center justify-center text-[10px] font-bold">+</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2 -->
+                            <div class="lifecycle-step group flex flex-col md:flex-row items-center justify-between w-full opacity-30 transition-all duration-500" data-threshold="0.35">
+                                <div class="md:w-[42%] md:text-right md:pr-12 w-full order-last md:order-first">
+                                    <div class="bg-white border border-border p-3 rounded-lg shadow-sm inline-block text-left font-mono text-[10px] text-subtle">
+                                        <div>&gt; Fetching commits...</div>
+                                        <div>&gt; Parsing calendar events...</div>
+                                        <div class="text-green-600">&gt; Data normalized.</div>
+                                    </div>
+                                </div>
+                                <div class="absolute left-8 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full border border-border bg-white flex items-center justify-center z-20 group-[.active]:border-obsidian group-[.active]:scale-110 transition-all shadow-sm">
+                                    <iconify-icon icon="solar:cloud-download-linear" class="text-subtle group-[.active]:text-obsidian"></iconify-icon>
+                                </div>
+                                <div class="md:w-[42%] md:pl-12 w-full text-left mb-2 md:mb-0">
+                                    <span class="font-mono text-[10px] text-subtle uppercase tracking-wider block mb-1">02 Ingest</span>
+                                    <h3 class="font-sans text-lg font-semibold text-obsidian">Data Stream</h3>
+                                    <p class="text-xs text-subtle mt-1">Real-time sync of activities.</p>
+                                </div>
+                            </div>
+
+                            <!-- Step 3 -->
+                            <div class="lifecycle-step group flex flex-col md:flex-row items-center justify-between w-full opacity-30 transition-all duration-500" data-threshold="0.6">
+                                <div class="md:w-[42%] md:text-right md:pr-12 w-full text-left mb-2 md:mb-0">
+                                    <span class="font-mono text-[10px] text-subtle uppercase tracking-wider block mb-1">03 Analyze</span>
+                                    <h3 class="font-sans text-lg font-semibold text-obsidian">AI Synthesis</h3>
+                                    <p class="text-xs text-subtle mt-1">Finding patterns in the noise.</p>
+                                </div>
+                                <div class="absolute left-8 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full border border-border bg-white flex items-center justify-center z-20 group-[.active]:border-obsidian group-[.active]:scale-110 transition-all shadow-sm">
+                                    <iconify-icon icon="solar:stars-minimalistic-bold" class="text-subtle group-[.active]:text-amber-500"></iconify-icon>
+                                </div>
+                                <div class="md:w-[42%] md:pl-12 w-full">
+                                    <div class="bg-obsidian text-white p-3 rounded-lg shadow-lg w-fit text-xs max-w-[200px]">
+                                        "You spent 12h in meetings but pushed 400 lines of critical code. High impact day."
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 4 -->
+                            <div class="lifecycle-step group flex flex-col md:flex-row items-center justify-between w-full opacity-30 transition-all duration-500" data-threshold="0.85">
+                                <div class="md:w-[42%] md:text-right md:pr-12 w-full order-last md:order-first">
+                                    <div class="bg-white border border-border rounded-lg shadow-sm p-1 inline-flex gap-1">
+                                        <div class="w-8 h-12 bg-slate-100 rounded-sm"></div>
+                                        <div class="w-8 h-12 bg-obsidian rounded-sm"></div>
+                                        <div class="w-8 h-12 bg-slate-100 rounded-sm"></div>
+                                    </div>
+                                </div>
+                                <div class="absolute left-8 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full border border-border bg-white flex items-center justify-center z-20 group-[.active]:border-obsidian group-[.active]:scale-110 transition-all shadow-sm">
+                                    <iconify-icon icon="solar:presentation-graph-linear" class="text-subtle group-[.active]:text-obsidian"></iconify-icon>
+                                </div>
+                                <div class="md:w-[42%] md:pl-12 w-full text-left mb-2 md:mb-0">
+                                    <span class="font-mono text-[10px] text-subtle uppercase tracking-wider block mb-1">04 Visualize</span>
+                                    <h3 class="font-sans text-lg font-semibold text-obsidian">Actionable Trends</h3>
+                                    <p class="text-xs text-subtle mt-1">Understand your velocity.</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                (function(){
+                    const section = document.getElementById('how-it-works');
+                    const line = document.getElementById('lifecycle-line');
+                    const steps = section.querySelectorAll('.lifecycle-step');
+                    
+                    function handleScroll() {
+                        if (!section) return;
+                        const rect = section.getBoundingClientRect();
+                        const viewH = window.innerHeight;
+                        const travelDistance = rect.height - viewH;
+                        const scrolled = -rect.top;
+                        
+                        let progress = scrolled / travelDistance;
+                        progress = Math.max(0, Math.min(1, progress));
+                        
+                        line.style.height = (progress * 100) + '%';
+                        
+                        steps.forEach(step => {
+                            const t = parseFloat(step.dataset.threshold);
+                            if (progress >= t) {
+                                if (progress < t + 0.2) {
+                                    step.classList.add('active');
+                                    step.classList.replace('opacity-30', 'opacity-100');
+                                    step.style.transform = 'translateY(0)';
+                                } else {
+                                    step.classList.add('active');
+                                    step.classList.replace('opacity-30', 'opacity-40');
+                                }
+                            } else {
+                                step.classList.remove('active');
+                                step.classList.replace('opacity-100', 'opacity-30');
+                                step.classList.replace('opacity-40', 'opacity-30');
+                            }
+                        });
+                    };
+                    window.addEventListener('scroll', handleScroll, {passive: true});
+                    handleScroll();
+                })();
+            </script>
+        </section>
+
+        <!-- DASHBOARD GRID -->
+        <section id="features" class="py-32 px-6 md:px-12 lg:px-20 bg-canvas">
+            <div class="max-w-7xl mx-auto">
+                <div class="mb-20 max-w-2xl reveal-on-scroll">
+                    <h2 class="font-sans text-4xl md:text-5xl font-semibold text-obsidian tracking-tight mb-6">
+                        The Developer's <br><span class="text-subtle">Control Center.</span>
+                    </h2>
+                    <p class="text-subtle text-lg leading-relaxed">
+                        Merge your coding activity with your meeting schedule. See the true cost of context switching.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    
+                    <!-- Card 1: Commit Heatmap + Calendar -->
+                    <div class="md:col-span-8 group relative bg-white border border-border rounded-2xl overflow-hidden hover:border-obsidian/30 transition-all duration-500 reveal-on-scroll delay-100">
+                        <div class="p-8 flex flex-col h-full">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 bg-canvas border border-border rounded-lg flex items-center justify-center text-obsidian">
+                                    <iconify-icon icon="solar:git-commit-linear" width="20"></iconify-icon>
+                                </div>
+                                <h3 class="text-xl font-semibold text-obsidian">Unified Timeline</h3>
+                            </div>
+                            
+                            <div class="mt-auto border border-border/50 rounded-lg p-6 bg-canvas/30 relative overflow-hidden">
+                                <!-- Mock Graph -->
+                                <div class="flex items-end justify-between gap-1 h-32 w-full">
+                                    <div class="w-full bg-obsidian/10 rounded-sm h-[40%] group-hover:h-[60%] transition-all duration-700"></div>
+                                    <div class="w-full bg-obsidian/10 rounded-sm h-[70%] group-hover:h-[50%] transition-all duration-700 delay-75"></div>
+                                    <div class="w-full bg-obsidian/80 rounded-sm h-[90%] transition-all duration-700 delay-100 relative group">
+                                        <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">12 Commits</div>
+                                    </div>
+                                    <div class="w-full bg-obsidian/10 rounded-sm h-[30%] group-hover:h-[40%] transition-all duration-700 delay-150"></div>
+                                    <div class="w-full bg-blue-500/20 rounded-sm h-[80%] border border-blue-500/50 group-hover:h-[85%] transition-all duration-700 delay-200 relative">
+                                        <!-- Meeting Indicator -->
+                                        <div class="absolute inset-x-0 bottom-0 top-1/2 bg-blue-500/10"></div>
+                                    </div>
+                                    <div class="w-full bg-obsidian/10 rounded-sm h-[50%] transition-all duration-700 delay-250"></div>
+                                    <div class="w-full bg-obsidian/10 rounded-sm h-[20%] transition-all duration-700 delay-300"></div>
+                                </div>
+                                <div class="mt-4 flex justify-between text-[10px] text-subtle font-mono uppercase">
+                                    <span>Mon</span>
+                                    <span>Tue</span>
+                                    <span>Wed</span>
+                                    <span>Thu</span>
+                                    <span>Fri</span>
+                                    <span>Sat</span>
+                                    <span>Sun</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Focus Score -->
+                    <div class="md:col-span-4 group relative bg-white border border-border rounded-2xl overflow-hidden hover:border-obsidian/30 transition-all duration-500 reveal-on-scroll delay-200">
+                        <div class="p-8 h-full flex flex-col">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 bg-canvas border border-border rounded-lg flex items-center justify-center text-obsidian">
+                                    <iconify-icon icon="solar:target-linear" width="20"></iconify-icon>
+                                </div>
+                                <h3 class="text-xl font-semibold text-obsidian">Focus Score</h3>
+                            </div>
+                            
+                            <div class="flex-1 flex items-center justify-center relative">
+                                <svg class="w-40 h-40 transform -rotate-90">
+                                    <circle cx="80" cy="80" r="70" stroke="#E5E5E5" stroke-width="8" fill="transparent"></circle>
+                                    <circle cx="80" cy="80" r="70" stroke="#000" stroke-width="8" fill="transparent" stroke-dasharray="440" stroke-dashoffset="440" class="group-hover:stroke-dashoffset-[110] transition-all duration-[1500ms] ease-out"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span class="text-4xl font-bold text-obsidian">75</span>
+                                    <span class="text-xs text-subtle font-medium uppercase tracking-wide">Good</span>
+                                </div>
+                            </div>
+                            <p class="text-center text-xs text-subtle mt-4">
+                                4.5 hrs of uninterrupted time today.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: AI Summary -->
+                    <div class="md:col-span-12 group relative bg-obsidian text-white border border-obsidian rounded-2xl overflow-hidden reveal-on-scroll delay-300">
+                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-neutral-800 to-transparent opacity-50"></div>
+                        <div class="p-8 md:p-12 relative z-10 flex flex-col md:flex-row gap-12 items-center">
+                            <div class="flex-1 max-w-lg space-y-4">
+                                <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/10 text-xs font-medium text-amber-300">
+                                    <iconify-icon icon="solar:stars-minimalistic-bold"></iconify-icon>
+                                    Daily Digest
+                                </div>
+                                <h3 class="text-3xl font-semibold">"What did I achieve today?"</h3>
+                                <p class="text-white/60 leading-relaxed">
+                                    MySubscriptions generates a natural language summary of your day. Perfect for stand-ups and personal reflection logs.
+                                </p>
+                            </div>
+                            
+                            <!-- Chat Bubble UI -->
+                            <div class="flex-1 w-full max-w-lg">
+                                <div class="space-y-4">
+                                    <!-- User Message -->
+                                    <div class="flex justify-end">
+                                        <div class="bg-white/10 border border-white/5 rounded-2xl rounded-tr-sm px-5 py-3 text-sm text-white/90">
+                                            Summarize my Tuesday.
+                                        </div>
+                                    </div>
+                                    <!-- AI Response -->
+                                    <div class="flex justify-start gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0">
+                                            <iconify-icon icon="solar:magic-stick-3-linear" class="text-white"></iconify-icon>
+                                        </div>
+                                        <div class="bg-white text-obsidian rounded-2xl rounded-tl-sm px-6 py-5 text-sm shadow-xl w-full">
+                                            <p class="mb-2 font-semibold">Here is your summary:</p>
+                                            <ul class="space-y-2 text-subtle">
+                                                <li class="flex gap-2">
+                                                    <iconify-icon icon="solar:check-circle-linear" class="text-green-500 mt-0.5"></iconify-icon>
+                                                    Merged PR #402 (Payment Gateway).
+                                                </li>
+                                                <li class="flex gap-2">
+                                                    <iconify-icon icon="solar:check-circle-linear" class="text-green-500 mt-0.5"></iconify-icon>
+                                                    Attended "Q3 Roadmap" (1h 30m).
+                                                </li>
+                                                <li class="flex gap-2">
+                                                    <iconify-icon icon="solar:clock-circle-linear" class="text-orange-500 mt-0.5"></iconify-icon>
+                                                    Total Deep Work: 3h 15m.
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRICING -->
+        <section id="pricing" class="py-32 px-6 border-t border-border bg-white">
+            <div class="max-w-5xl mx-auto">
+                <div class="text-center mb-16 reveal-on-scroll">
+                    <h2 class="font-sans text-3xl md:text-4xl font-semibold text-obsidian tracking-tight mb-4">Simple Pricing</h2>
+                    <p class="text-subtle text-base">Start for free. Upgrade for history and AI depth.</p>
+                    
+                    <!-- Toggle -->
+                    <div class="mt-8 inline-flex items-center p-1 bg-canvas border border-border rounded-lg relative">
+                        <div id="price-bg" class="absolute left-1 top-1 bottom-1 w-[calc(50%-4px)] bg-white shadow-sm border border-border rounded-md transition-all duration-300"></div>
+                        <button class="relative z-10 px-6 py-2 text-xs font-semibold text-obsidian w-24" onclick="togglePrice(false)">Monthly</button>
+                        <button class="relative z-10 px-6 py-2 text-xs font-semibold text-subtle w-24" onclick="togglePrice(true)">Yearly</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    
+                    <!-- Hobby -->
+                    <div class="group p-8 rounded-2xl border border-border bg-canvas hover:border-obsidian/30 hover:shadow-xl transition-all duration-300 reveal-on-scroll delay-100">
+                        <div class="mb-6">
+                            <span class="font-semibold text-obsidian text-lg">Hobby</span>
+                            <div class="mt-2 flex items-baseline gap-1">
+                                <span class="text-4xl font-bold text-obsidian">$0</span>
+                                <span class="text-sm text-subtle">/mo</span>
+                            </div>
+                        </div>
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex gap-3 text-sm text-subtle"><iconify-icon icon="solar:check-read-linear" class="text-obsidian"></iconify-icon> Connect 1 GitHub Account</li>
+                            <li class="flex gap-3 text-sm text-subtle"><iconify-icon icon="solar:check-read-linear" class="text-obsidian"></iconify-icon> Connect 1 Google Calendar</li>
+                            <li class="flex gap-3 text-sm text-subtle"><iconify-icon icon="solar:check-read-linear" class="text-obsidian"></iconify-icon> 7-day History</li>
+                        </ul>
+                        <button class="w-full py-3 rounded-lg border border-border bg-white text-sm font-semibold hover:border-obsidian transition-colors">Get Started</button>
+                    </div>
+
+                    <!-- Pro -->
+                    <div class="group p-8 rounded-2xl border border-obsidian bg-obsidian text-white shadow-2xl transition-all duration-300 transform hover:-translate-y-2 reveal-on-scroll delay-200">
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-white text-lg">Pro</span>
+                                <span class="text-[10px] font-bold bg-white/20 px-2 py-1 rounded text-white">RECOMMENDED</span>
+                            </div>
+                            <div class="mt-2 flex items-baseline gap-1">
+                                <span class="text-4xl font-bold text-white price-display">$12</span>
+                                <span class="text-sm text-white/60">/mo</span>
+                            </div>
+                        </div>
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex gap-3 text-sm text-white/80"><iconify-icon icon="solar:check-read-linear" class="text-white"></iconify-icon> Unlimited Accounts</li>
+                            <li class="flex gap-3 text-sm text-white/80"><iconify-icon icon="solar:check-read-linear" class="text-white"></iconify-icon> Unlimited History</li>
+                            <li class="flex gap-3 text-sm text-white/80"><iconify-icon icon="solar:stars-minimalistic-bold" class="text-amber-400"></iconify-icon> Advanced AI Summaries</li>
+                        </ul>
+                        <button class="w-full py-3 rounded-lg bg-white text-obsidian text-sm font-semibold hover:bg-gray-100 transition-colors">Start Trial</button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="bg-white py-12 px-6 border-t border-border">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-obsidian rounded-md flex items-center justify-center text-white text-[10px]">
+                        <iconify-icon icon="solar:graph-new-up-linear"></iconify-icon>
+                    </div>
+                    <span class="font-bold text-sm text-obsidian">MySubscriptions</span>
+                </div>
+                <div class="text-xs text-subtle">
+                    © 2024 MySubscriptions Inc. All rights reserved.
+                </div>
+                <div class="flex gap-6">
+                    <a href="#" class="text-subtle hover:text-obsidian transition-colors"><iconify-icon icon="mdi:twitter" width="20"></iconify-icon></a>
+                    <a href="#" class="text-subtle hover:text-obsidian transition-colors"><iconify-icon icon="mdi:github" width="20"></iconify-icon></a>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Pricing Logic -->
+    <script>
+        function togglePrice(isYearly) {
+            const el = document.querySelector('.price-display');
+            const bg = document.getElementById('price-bg');
+            
+            if (isYearly) {
+                el.innerText = '$10';
+                bg.style.transform = 'translateX(100%)';
+            } else {
+                el.innerText = '$12';
+                bg.style.transform = 'translateX(0)';
+            }
+        }
+    </script>
+
+    <!-- Scroll Animation Observer -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-reveal');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            const revealElements = document.querySelectorAll('.reveal-on-scroll');
+            revealElements.forEach(el => observer.observe(el));
+        });
+    </script>
+
+    <!-- Three.js Background -->
+    <script type="x-shader/x-vertex" id="vertexShader">
+        uniform float uTime;
+        uniform vec2 uMouse;
+        varying float vAlpha;
+        
+        void main() {
+            vec3 pos = position;
+            // Gentle wave movement
+            pos.y += sin(pos.x * 0.5 + uTime * 0.5) * 0.5;
+            pos.z += cos(pos.y * 0.5 + uTime * 0.5) * 0.5;
+            
+            // Mouse interaction
+            float dist = distance(uMouse * 10.0, pos.xy);
+            float interaction = smoothstep(5.0, 0.0, dist);
+            pos.z += interaction * 2.0;
+            
+            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+            gl_Position = projectionMatrix * mvPosition;
+            gl_PointSize = 2.5 * (10.0 / -mvPosition.z);
+            
+            // Fade based on depth
+            vAlpha = smoothstep(20.0, 0.0, -mvPosition.z) * 0.4;
+        }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentShader">
+        uniform vec3 uColor;
+        varying float vAlpha;
+        
+        void main() {
+            if (length(gl_PointCoord - vec2(0.5)) > 0.5) discard;
+            gl_FragColor = vec4(uColor, vAlpha);
+        }
+    </script>
+
+    <script>
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 10;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Particles
+        const geometry = new THREE.BufferGeometry();
+        const count = 800;
+        const positions = new Float32Array(count * 3);
+        
+        for(let i = 0; i < count * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 20;
+        }
+        
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const material = new THREE.ShaderMaterial({
+            vertexShader: document.getElementById('vertexShader').textContent,
+            fragmentShader: document.getElementById('fragmentShader').textContent,
+            uniforms: {
+                uTime: { value: 0 },
+                uMouse: { value: new THREE.Vector2(0, 0) },
+                uColor: { value: new THREE.Color('#111111') }
+            },
+            transparent: true,
+            depthWrite: false
+        });
+
+        const points = new THREE.Points(geometry, material);
+        scene.add(points);
+
+        // Interaction
+        let mouse = new THREE.Vector2();
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Animation Loop
+        const clock = new THREE.Clock();
+        function animate() {
+            const elapsedTime = clock.getElapsedTime();
+            material.uniforms.uTime.value = elapsedTime;
+            
+            // Smooth mouse follow
+            material.uniforms.uMouse.value.lerp(mouse, 0.05);
+            
+            // Slow rotation
+            points.rotation.y = elapsedTime * 0.05;
+
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+
+</body></html>
