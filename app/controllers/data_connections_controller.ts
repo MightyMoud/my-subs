@@ -5,6 +5,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 export default class DataConnectionsController {
   constructor() {}
 
+  // unused for now. Switched to SSR instead.
+  // Leaving here for future expansion.
   public async getUserConnections({ auth }: HttpContext) {
     const user = auth.user!
     const connections = await user.related('dataConnections').query()
