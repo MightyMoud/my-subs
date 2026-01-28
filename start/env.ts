@@ -38,4 +38,6 @@ export default await Env.create(new URL('../', import.meta.url), {
   GITHUB_CALLBACK_URL: Env.schema.string(),
 
   DATABASE_URL: Env.schema.string(),
+
+  GEMINI_API_KEY: Env.schema.string()
 })

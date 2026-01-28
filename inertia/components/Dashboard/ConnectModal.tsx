@@ -47,18 +47,20 @@ export const ConnectModal = ({ isOpen, onClose }: ConnectModalProps) => {
               />
               <span className="text-sm font-medium text-[#0A0A0A]">GitHub</span>
             </a>
-            <a
-              href="/api/connect/google"
-              className="group flex flex-col items-center justify-center gap-3 p-6 rounded-xl border border-[#E5E5E5] bg-[#FAFAFA] hover:border-[#0A0A0A]/30 hover:bg-white transition-all duration-200 hover:shadow-md"
+            <button
+              type="button"
+              disabled
+              aria-disabled="true"
+              className="group flex flex-col items-center justify-center gap-3 p-6 rounded-xl border border-[#E5E5E5] bg-[#FAFAFA] opacity-60 cursor-not-allowed"
             >
               <Icon
                 icon="mdi:google"
                 width="32"
                 height="32"
-                className="text-blue-500 group-hover:scale-110 transition-transform"
+                className="text-blue-500"
               />
               <span className="text-sm font-medium text-[#0A0A0A]">Google</span>
-            </a>
+            </button>
           </div>
           <div className="mt-6 flex items-center justify-center gap-2 text-[10px] text-[#737373]">
             <Icon icon="solar:shield-check-linear" />

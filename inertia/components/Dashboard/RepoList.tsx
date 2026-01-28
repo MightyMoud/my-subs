@@ -62,7 +62,7 @@ export const RepoList = ({ repos }: { repos: GithubRepoSummary[] }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#E5E5E5]/60">
-            {repos.length === 0 && (
+            {repos?.length === 0 && (
               <tr>
                 <td
                   className="py-8 px-6 text-center text-sm text-[#737373]"
@@ -72,7 +72,7 @@ export const RepoList = ({ repos }: { repos: GithubRepoSummary[] }) => {
                 </td>
               </tr>
             )}
-            {repos.map((repo) => {
+            {repos?.map((repo) => {
               const langBreakdown = calculateLanguagePercentages(repo.langs)
 
               return (

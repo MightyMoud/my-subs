@@ -1,6 +1,7 @@
 import { inject } from '@adonisjs/core'
 import { GoogleGenAI } from '@google/genai'
 import env from '#start/env'
+import type { GithubData } from '../types/data.js'
 
 @inject()
 export default class AiService {
@@ -10,10 +11,17 @@ export default class AiService {
     this.ai = new GoogleGenAI({ apiKey: env.get('GEMINI_API_KEY') })
   }
 
-  async summarizeText(text: string): Promise<string> {
+  async generateAiCommentaryOnGithubSummary(
+    githubData: GithubData,
+  ): Promise<string> {
     const response = await this.ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: `Generate an excerpt for this post in less than 30 words. Make sure it's concise and informative. Don't start by stating this article is. Just a human readable excerpt. Here is the post:\n\n${text}`,
+      contents: `You are given fetched data from a user's GitHub account as follows:
+      
+      ${JSON.stringify(githubData, null, 2)}
+      
+      Provide a brief commentary summarizing the user's coding activity, popular repositories, and commit history in an engaging and friendly tone.
+      Use markdown and make sure it's less than 200 words.`,
     })
     return response.text || ''
   }

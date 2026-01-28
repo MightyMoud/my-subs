@@ -1,0 +1,31 @@
+import router from '@adonisjs/core/services/router'
+import { middleware } from '#start/kernel'
+
+router
+  .group(() => {
+    router
+      .group(() => {
+        router
+          .get(
+            '/repos',
+            '#controllers/data_connections_controller.getGithubRepos',
+          )
+          .as('getGithubRepos')
+        router
+          .get(
+            '/commits',
+            '#controllers/data_connections_controller.getGithubCommitHistory',
+          )
+          .as('getGithubCommitHistory')
+      })
+      .prefix('github')
+      .as('github'),
+      router.group(() => {
+        router.get(
+          '/ai/summary',
+          '#controllers/ai_controller.generateAiCommentary',
+        )
+      })
+  })
+  .prefix('api')
+  .middleware(middleware.auth())

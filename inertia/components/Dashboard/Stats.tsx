@@ -1,70 +1,103 @@
+import { GithubCommitSummary } from '@/types/data'
 import { Icon } from '@iconify/react'
-
-type GithubCommitSummary = {
-  name: string
-  commitCount: number
-  latestCommitSha?: string
-  latestCommitAt?: string
-}
+import { useCallback, useEffect, useState } from 'react'
+import Markdown from 'react-markdown'
 
 export const Stats = ({
   totalCommits,
   mostCommittedRepo,
+  activeReposCount,
+  userName,
 }: {
   totalCommits: number
   mostCommittedRepo?: GithubCommitSummary
+  activeReposCount: number
+  userName: string
 }) => {
-  return (
-    <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Welcome Card */}
-      <div className="lg:col-span-2 space-y-6">
-        <div>
-          <h1 className="font-display text-2xl font-semibold text-[#0A0A0A] tracking-tight">
-            Good morning, Alex.
-          </h1>
-          <p className="text-[#737373] mt-1">
-            Here's what's happening across your repositories today.
-          </p>
-        </div>
+  const [aiSummary, setAiSummary] = useState<string>('Loading AI insights...')
+  const [isLoading, setIsLoading] = useState(true)
 
-        {/* AI Insight Box */}
-        <div className="relative overflow-hidden rounded-xl border border-indigo-100 bg-gradient-to-br from-white to-indigo-50/30 shadow-sm p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-200">
-              <Icon icon="solar:magic-stick-3-bold" width="20" height="20" />
-            </div>
-            <div className="space-y-3">
+  const fetchAiSummary = async (regen: boolean = false) => {
+    setIsLoading(true)
+    try {
+      const url = regen ? '/api/ai/summary?regen=true' : '/api/ai/summary'
+      const response = await fetch(url, {
+        credentials: 'include',
+      })
+      const data = await response.json()
+      setAiSummary(data.commentary)
+    } catch (error) {
+      console.error('Failed to fetch AI summary', error)
+      setAiSummary('Unable to generate AI insights at this time.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchAiSummary()
+  }, [])
+
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return 'Good morning'
+    if (hour < 18) return 'Good afternoon'
+    return 'Good evening'
+  }
+
+  return (
+    <section className="space-y-6">
+      {/* Welcome Card */}
+      <div>
+        <h1 className="font-display text-2xl font-semibold text-[#0A0A0A] tracking-tight">
+          {getGreeting()}, {userName}.
+        </h1>
+        <p className="text-[#737373] mt-1">
+          Here's what's happening across your repositories today.
+        </p>
+      </div>
+
+      {/* AI Insight Box */}
+      <div className="relative overflow-hidden rounded-xl border border-indigo-100 bg-gradient-to-br from-white to-indigo-50/30 shadow-sm p-6">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-200">
+            <Icon icon="solar:magic-stick-3-bold" width="20" height="20" />
+          </div>
+          <div className="space-y-3 flex-1">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-[#0A0A0A]">
-                  Daily Synthesis
+                  Weekly Synthesis
                 </h3>
                 <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase tracking-wide">
                   AI Generated
                 </span>
               </div>
-              <p className="text-[#737373] leading-relaxed">
-                You've maintained a high velocity this week. High commit volume
-                detected in{' '}
-                <span className="font-mono text-xs bg-white border border-[#E5E5E5] px-1 rounded">
-                  frontend-v2
-                </span>{' '}
-                correlated with your "Deep Work" calendar block on Tuesday.
-                Warning: Context switching increased by 15% yesterday due to 4
-                overlapping meetings.
-              </p>
-              <div className="flex gap-3 pt-2">
-                <button className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors">
-                  View detailed breakdown{' '}
-                  <Icon icon="solar:arrow-right-linear" />
-                </button>
-              </div>
+              <button
+                onClick={() => fetchAiSummary(true)}
+                disabled={isLoading}
+                className="text-indigo-600 hover:text-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Regenerate summary"
+              >
+                <Icon icon="solar:refresh-bold" width="18" height="18" />
+              </button>
             </div>
+            {isLoading ? (
+              <div className="flex items-center gap-2 text-[#737373]">
+                <Icon icon="svg-spinners:ring-resize" width="16" height="16" />
+                <span className="text-sm">Generating insights...</span>
+              </div>
+            ) : (
+              <div className="text-[#737373] leading-relaxed prose prose-sm max-w-none prose-p:my-2 prose-code:text-xs prose-code:bg-white prose-code:border prose-code:border-[#E5E5E5] prose-code:px-1 prose-code:rounded prose-code:font-mono">
+                <Markdown>{aiSummary}</Markdown>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-[#FFFFFF] border border-[#E5E5E5] p-5 rounded-xl shadow-sm hover:border-[#0A0A0A]/20 transition-colors">
           <div className="flex justify-between items-start mb-4">
             <div className="w-8 h-8 rounded-full bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center text-[#737373]">
@@ -91,6 +124,17 @@ export const Stats = ({
               ? ` (${mostCommittedRepo.commitCount} commits)`
               : ''}
           </div>
+        </div>
+        <div className="bg-[#FFFFFF] border border-[#E5E5E5] p-5 rounded-xl shadow-sm hover:border-[#0A0A0A]/20 transition-colors">
+          <div className="flex justify-between items-start mb-4">
+            <div className="w-8 h-8 rounded-full bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center text-[#737373]">
+              <Icon icon="solar:folder-with-files-bold-duotone" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-[#0A0A0A] tracking-tight">
+            {activeReposCount}
+          </div>
+          <div className="text-xs text-[#737373] mt-1">Active repositories</div>
         </div>
       </div>
     </section>
