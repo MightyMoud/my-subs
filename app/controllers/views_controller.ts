@@ -20,11 +20,11 @@ export default class ViewsController {
       .first()
 
     // Didn't implement Google data fetching yet
-    const googleConnection = await user
-      .related('dataConnections')
-      .query()
-      .where('provider', 'google')
-      .first()
+    // const googleConnection = await user
+    //   .related('dataConnections')
+    //   .query()
+    //   .where('provider', 'google')
+    //   .first()
 
     if (githubConnection?.accessToken) {
       githubData.repos = await this.githubService.fetchPopularRepos({
