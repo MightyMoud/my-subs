@@ -6,8 +6,8 @@ tmp
 # Secrets
 .env
 .env.local
-.env.production.local
-.env.development.local
+.production.env
+
 
 # Frontend assets compiled code
 public/assets
@@ -23,4 +23,5 @@ yarn-error.log
 
 # Platform specific
 .DS_Store
-.db
+
+local.db
