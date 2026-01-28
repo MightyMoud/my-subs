@@ -9,7 +9,7 @@
 
 ---
 
-[Demo picture](./demo.png)
+![Demo picture](./demo.png)
 
 ## Table of Contents
 
