@@ -1,0 +1,9 @@
+name: subs
+version: V2
+image: ""
+url: subs.138.199.170.38.sslip.io
+port: 3333
+createdAt: Wed Jan 28 21:54:30 KST 2026
+env:
+    file: .production.env
+    hash: ce5b650acebbaf8deace364b5d646f12

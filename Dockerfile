@@ -24,4 +24,4 @@ COPY --from=production-deps /app/node_modules ./node_modules
 COPY --from=build /app/build ./
 COPY --from=build /app/.production.env ./.env
 EXPOSE 3333
-CMD ["sh", "-c", "node ace migration:run --force && export $(cat .env | xargs) && node ace publish:assets && node ./bin/server.js"]
+CMD ["sh", "-c", "node ace migration:run --force && node ./bin/server.js"]
