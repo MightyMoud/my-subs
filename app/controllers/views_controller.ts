@@ -47,12 +47,11 @@ export default class ViewsController {
     }
     // pass data to ai service. Could also be cache.
     // Doing this the quick way
-    if (!session.has('githubData')) {
-      session.put('githubData', githubData)
-    }
+    session.put('githubData', githubData)
+    session.commit()
 
     return inertia.render('dashboard', {
-      githubData: {},
+      githubData,
     })
   }
 }

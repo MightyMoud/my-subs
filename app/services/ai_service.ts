@@ -21,7 +21,8 @@ export default class AiService {
       ${JSON.stringify(githubData, null, 2)}
       
       Provide a brief commentary summarizing the user's coding activity, popular repositories, and commit history in an engaging and friendly tone.
-      Use markdown and make sure it's less than 200 words.`,
+      Use markdown and make sure it's less than 250 words.
+      Don't add any greetings or sign-offs.`,
     })
     return response.text || ''
   }

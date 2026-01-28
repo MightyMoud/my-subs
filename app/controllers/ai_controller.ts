@@ -7,8 +7,6 @@ export default class AisController {
   constructor(private aiService: AiService) {}
   async generateAiCommentary({ session, response, request }: HttpContext) {
     const regen = request.input('regen') === 'true'
-    console.log(request.input('regen'))
-    // console.log(session.clear())
 
     if (session.has('githubData')) {
       const githubData = session.get('githubData')
