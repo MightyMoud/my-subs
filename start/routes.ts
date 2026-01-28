@@ -40,7 +40,6 @@ router.group(() => {
     router
       .group(() => {
         router.on('/login').renderInertia('login')
-        router.get('test', '#controllers/views_controller.test')
       })
       .middleware(middleware.guest())
   })
