@@ -19,7 +19,8 @@ const inertiaConfig = defineConfig({
         'firstName',
         'lastName',
       ]),
-    session: (ctx) => ctx.session?.get('sessionData'),
+    connectionState: (ctx) =>
+      ctx.session?.flashMessages.get('justConnected') || null,
     errors: (ctx) =>
       ctx.inertia.always(() => ctx.session?.flashMessages.get('errors')),
   },

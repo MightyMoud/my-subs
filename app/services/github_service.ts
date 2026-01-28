@@ -5,6 +5,18 @@ export type GithubRepoRef = {
   name: string
 }
 
+export type GithubRepoRaw = {
+  id: number
+  name: string
+  full_name: string
+  owner: { login: string }
+  html_url: string
+  private: boolean
+  updated_at: string
+  pushed_at: string
+  languages_url: string
+}
+
 export type GithubRepoSummary = {
   id: number
   name: string
@@ -14,10 +26,23 @@ export type GithubRepoSummary = {
   private: boolean
   updatedAt: string
   pushedAt: string
+  langs?: unknown
+}
+
+export type GithubCommitAuthor = {
+  date?: string
+}
+
+export type GithubCommitData = {
+  author?: GithubCommitAuthor
+}
+
+export type GithubCommitRaw = {
+  sha: string
+  commit: GithubCommitData
 }
 
 export type GithubCommitSummary = {
-  owner: string
   name: string
   commitCount: number
   latestCommitSha?: string
@@ -58,64 +83,73 @@ export default class GithubService {
 
   public async fetchPopularRepos(options: {
     accessToken: string
-    username?: string
     perPage?: number
   }): Promise<GithubRepoSummary[]> {
     const perPage = options.perPage ?? 5
 
-    const path = options.username
-      ? `/users/${options.username}/repos`
-      : '/user/repos'
+    const path = '/user/repos'
 
-    const repos = await this.request<
-      Array<{
-        id: number
-        name: string
-        full_name: string
-        owner: { login: string }
-        html_url: string
-        private: boolean
-        updated_at: string
-        pushed_at: string
-      }>
-    >(path, options.accessToken, {
-      sort: 'pushed',
-      direction: 'desc',
-      per_page: `${perPage}`,
-      ...(options.username ? {} : { affiliation: 'owner,collaborator' }),
-    })
+    const repos = await this.request<GithubRepoRaw[]>(
+      path,
+      options.accessToken,
+      {
+        sort: 'pushed',
+        direction: 'desc',
+        per_page: `${perPage}`,
+        affiliation: 'owner',
+      },
+    )
 
-    return repos.map((repo) => ({
-      id: repo.id,
-      name: repo.name,
-      fullName: repo.full_name,
-      owner: repo.owner.login,
-      htmlUrl: repo.html_url,
-      private: repo.private,
-      updatedAt: repo.updated_at,
-      pushedAt: repo.pushed_at,
-    }))
+    return Promise.all(
+      repos.map(async (repo) => {
+        const repoLangs = await fetch(repo.languages_url, {
+          headers: {
+            Accept: 'application/vnd.github+json',
+            Authorization: `Bearer ${options.accessToken}`,
+            'X-GitHub-Api-Version': '2022-11-28',
+          },
+        })
+          .then((res) => res.json())
+          .catch((err) => {
+            console.error('Failed to fetch repo languages', err)
+            return {}
+          })
+        return {
+          id: repo.id,
+          name: repo.name,
+          fullName: repo.full_name,
+          owner: repo.owner.login,
+          htmlUrl: repo.html_url,
+          private: repo.private,
+          updatedAt: repo.updated_at,
+          pushedAt: repo.pushed_at,
+          langs: repoLangs,
+        }
+      }),
+    )
   }
 
   public async fetchCommitHistory(options: {
     accessToken: string
-    username: string
-    repos: GithubRepoRef[]
+    repos: GithubRepoSummary[]
     perRepoLimit?: number
   }): Promise<{ totalCommits: number; repos: GithubCommitSummary[] }> {
     const perRepoLimit = options.perRepoLimit ?? 100
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
     const results = await Promise.all(
       options.repos.map(async (repo) => {
-        const commits = await this.request<
-          Array<{ sha: string; commit: { author?: { date?: string } } }>
-        >(`/repos/${repo.owner}/${repo.name}/commits`, options.accessToken, {
-          author: options.username,
-          per_page: `${perRepoLimit}`,
-        })
+        const commits = await this.request<GithubCommitRaw[]>(
+          `/repos/${repo.owner}/${repo.name}/commits`,
+          options.accessToken,
+          {
+            per_page: `${perRepoLimit}`,
+            since: sevenDaysAgo.toISOString(),
+          },
+        )
 
         return {
-          owner: repo.owner,
           name: repo.name,
           commitCount: commits.length,
           latestCommitSha: commits[0]?.sha,

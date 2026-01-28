@@ -31,15 +31,6 @@ export default class AuthController {
     const { discountSignup, next, ...rest } = request.body()
     const user = await User.create(rest)
 
-    const contactExists = await this.emailService.checkContactExists(user.email)
-    if (!contactExists) {
-      await this.emailService.createContact({
-        email: user.email,
-        firstName: user.firstName,
-        customerId: user.id,
-      })
-    }
-
     await auth.use('web').login(user)
 
     if (next) {
@@ -178,7 +169,7 @@ export default class AuthController {
             : null,
         },
       )
-      session.put('sessionData', { justConnected: 'github' })
+      session.flash('justConnected', 'github')
       return response.redirect().toPath(session.get('next') || '/dashboard')
     }
 

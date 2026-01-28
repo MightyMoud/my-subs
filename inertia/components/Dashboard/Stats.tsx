@@ -1,6 +1,19 @@
 import { Icon } from '@iconify/react'
 
-export const Stats = () => {
+type GithubCommitSummary = {
+  name: string
+  commitCount: number
+  latestCommitSha?: string
+  latestCommitAt?: string
+}
+
+export const Stats = ({
+  totalCommits,
+  mostCommittedRepo,
+}: {
+  totalCommits: number
+  mostCommittedRepo?: GithubCommitSummary
+}) => {
   return (
     <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Welcome Card */}
@@ -55,30 +68,29 @@ export const Stats = () => {
         <div className="bg-[#FFFFFF] border border-[#E5E5E5] p-5 rounded-xl shadow-sm hover:border-[#0A0A0A]/20 transition-colors">
           <div className="flex justify-between items-start mb-4">
             <div className="w-8 h-8 rounded-full bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center text-[#737373]">
-              <Icon icon="solar:git-commit-linear" />
+              <Icon icon="solar:code-bold-duotone" />
             </div>
-            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
-              +12%
-            </span>
           </div>
           <div className="text-2xl font-bold text-[#0A0A0A] tracking-tight">
-            48
+            {totalCommits}
           </div>
           <div className="text-xs text-[#737373] mt-1">Commits this week</div>
         </div>
         <div className="bg-[#FFFFFF] border border-[#E5E5E5] p-5 rounded-xl shadow-sm hover:border-[#0A0A0A]/20 transition-colors">
           <div className="flex justify-between items-start mb-4">
             <div className="w-8 h-8 rounded-full bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center text-[#737373]">
-              <Icon icon="solar:clock-circle-linear" />
+              <Icon icon="solar:fire-bold-duotone" />
             </div>
-            <span className="text-xs font-medium text-[#737373] bg-[#FAFAFA] px-2 py-1 rounded-full">
-              Avg
-            </span>
           </div>
-          <div className="text-2xl font-bold text-[#0A0A0A] tracking-tight">
-            4h 12m
+          <div className="text-2xl font-bold text-[#0A0A0A] tracking-tight truncate">
+            {mostCommittedRepo ? mostCommittedRepo.name : 'N/A'}
           </div>
-          <div className="text-xs text-[#737373] mt-1">Focus time / day</div>
+          <div className="text-xs text-[#737373] mt-1">
+            Most active repo
+            {mostCommittedRepo
+              ? ` (${mostCommittedRepo.commitCount} commits)`
+              : ''}
+          </div>
         </div>
       </div>
     </section>
